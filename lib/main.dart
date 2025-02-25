@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 void main() {
   runApp(const MyApp());
+}
+
+// 상태를 관리할 ChangeNotifier 클래스
+class CounterProvider extends ChangeNotifier {
+  int _counter = 0;
+  int get counter => _counter;
+
+  void increment() {
+    _counter++;
+    notifyListeners();
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -9,25 +21,24 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Counter',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
+      child: MaterialApp(
+        title: 'Counter',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const Home(),
       ),
-      home: const Home(),
     );
   }
 }
 
-class Home extends StatefulWidget {
+// Home은 이제 StatelessWidget으로 변경
+class Home extends StatelessWidget {
   const Home({super.key});
 
-  @override
-  State<Home> createState() => _HomeState();
-}
-
-class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     debugPrint("Home building");
@@ -38,21 +49,9 @@ class _HomeState extends State<Home> {
   }
 }
 
-class WidgetA extends StatefulWidget {
+// WidgetA도 StatelessWidget으로 변경
+class WidgetA extends StatelessWidget {
   const WidgetA({super.key});
-
-  @override
-  State<WidgetA> createState() => _WidgetAState();
-}
-
-class _WidgetAState extends State<WidgetA> {
-  int counter = 0;
-
-  void increment() {
-    setState(() {
-      counter++;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +61,12 @@ class _WidgetAState extends State<WidgetA> {
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: const <Widget>[
             Text('Widget A', style: TextStyle(fontSize: 24.0)),
-            const SizedBox(height: 20.0),
-            WidgetC(counter: counter, increment: increment),
-            const SizedBox(height: 20.0),
-            WidgetD(counter: counter),
+            SizedBox(height: 20.0),
+            WidgetC(),
+            SizedBox(height: 20.0),
+            WidgetD(),
           ],
         ),
       ),
@@ -89,10 +88,7 @@ class WidgetB extends StatelessWidget {
 }
 
 class WidgetC extends StatelessWidget {
-  const WidgetC({required this.counter, required this.increment, super.key});
-
-  final int counter;
-  final void Function() increment;
+  const WidgetC({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -103,9 +99,15 @@ class WidgetC extends StatelessWidget {
       child: Column(
         children: [
           Text('C', style: TextStyle(fontSize: 24.0, color: Colors.white)),
-          Text('$counter', style: const TextStyle(fontSize: 48.0)),
+          Consumer<CounterProvider>(
+            builder:
+                (context, counter, child) => Text(
+                  '${counter.counter}',
+                  style: const TextStyle(fontSize: 48.0),
+                ),
+          ),
           ElevatedButton(
-            onPressed: increment,
+            onPressed: () => context.read<CounterProvider>().increment(),
             child: const Text('Action', style: TextStyle(fontSize: 20.0)),
           ),
         ],
@@ -115,9 +117,7 @@ class WidgetC extends StatelessWidget {
 }
 
 class WidgetD extends StatelessWidget {
-  const WidgetD({required this.counter, super.key});
-
-  final int counter;
+  const WidgetD({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -128,11 +128,11 @@ class WidgetD extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: const [
           Text('D  ', style: TextStyle(fontSize: 24.0)),
-          WidgetE(counter: counter),
-          const SizedBox(width: 20.0),
-          const WidgetF(),
+          WidgetE(),
+          SizedBox(width: 20.0),
+          WidgetF(),
         ],
       ),
     );
@@ -140,9 +140,7 @@ class WidgetD extends StatelessWidget {
 }
 
 class WidgetE extends StatelessWidget {
-  const WidgetE({required this.counter, super.key});
-
-  final int counter;
+  const WidgetE({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +154,13 @@ class WidgetE extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(10.0),
       child: Center(
-        child: Text('$counter', style: const TextStyle(fontSize: 24.0)),
+        child: Consumer<CounterProvider>(
+          builder:
+              (context, counter, child) => Text(
+                '${counter.counter}',
+                style: const TextStyle(fontSize: 24.0),
+              ),
+        ),
       ),
     );
   }
