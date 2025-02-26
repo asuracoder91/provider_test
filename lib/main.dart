@@ -6,7 +6,7 @@ void main() {
 }
 
 // 상태를 관리할 ChangeNotifier 클래스
-class CounterProvider extends ChangeNotifier {
+class CounterProvider with ChangeNotifier {
   int _counter = 0;
   int get counter => _counter;
 
