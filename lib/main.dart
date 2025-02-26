@@ -5,16 +5,24 @@ void main() {
   runApp(const MyApp());
 }
 
-// 전역 ValueNotifier 선언
-final counterNotifier = ValueNotifier<int>(0);
+// 상태를 관리할 ChangeNotifier 클래스
+class CounterProvider with ChangeNotifier {
+  int _counter = 0;
+  int get counter => _counter;
+
+  void increment() {
+    _counter++;
+    notifyListeners();
+  }
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableProvider<int>.value(
-      value: counterNotifier,
+    return ChangeNotifierProvider(
+      create: (_) => CounterProvider(),
       child: MaterialApp(
         title: 'Counter',
         theme: ThemeData(
@@ -85,7 +93,6 @@ class WidgetC extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint("WidgetC building");
-    final counter = context.watch<int>();
 
     return Container(
       color: Colors.teal,
@@ -93,9 +100,15 @@ class WidgetC extends StatelessWidget {
       child: Column(
         children: [
           Text('C', style: TextStyle(fontSize: 24.0, color: Colors.white)),
-          Text('$counter', style: const TextStyle(fontSize: 48.0)),
+          Consumer<CounterProvider>(
+            builder:
+                (context, counter, child) => Text(
+                  '${counter.counter}',
+                  style: const TextStyle(fontSize: 48.0),
+                ),
+          ),
           ElevatedButton(
-            onPressed: () => counterNotifier.value++,
+            onPressed: () => context.read<CounterProvider>().increment(),
             child: const Text('Action', style: TextStyle(fontSize: 20.0)),
           ),
         ],
@@ -133,7 +146,6 @@ class WidgetE extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint("WidgetE building");
-    final counter = context.watch<int>();
 
     return Container(
       width: 100,
@@ -144,7 +156,13 @@ class WidgetE extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(10.0),
       child: Center(
-        child: Text('$counter', style: const TextStyle(fontSize: 24.0)),
+        child: Consumer<CounterProvider>(
+          builder:
+              (context, counter, child) => Text(
+                '${counter.counter}',
+                style: const TextStyle(fontSize: 24.0),
+              ),
+        ),
       ),
     );
   }
