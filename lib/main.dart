@@ -93,19 +93,15 @@ class WidgetC extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint("WidgetC building");
+    final counter = context.watch<CounterProvider>();
+
     return Container(
       color: Colors.teal,
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: [
           Text('C', style: TextStyle(fontSize: 24.0, color: Colors.white)),
-          Consumer<CounterProvider>(
-            builder:
-                (context, counter, child) => Text(
-                  '${counter.counter}',
-                  style: const TextStyle(fontSize: 48.0),
-                ),
-          ),
+          Text('${counter.counter}', style: const TextStyle(fontSize: 48.0)),
           ElevatedButton(
             onPressed: () => context.read<CounterProvider>().increment(),
             child: const Text('Action', style: TextStyle(fontSize: 20.0)),
@@ -145,6 +141,8 @@ class WidgetE extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint("WidgetE building");
+    final counter = context.watch<CounterProvider>();
+
     return Container(
       width: 100,
       height: 100,
@@ -154,12 +152,9 @@ class WidgetE extends StatelessWidget {
       ),
       padding: const EdgeInsets.all(10.0),
       child: Center(
-        child: Consumer<CounterProvider>(
-          builder:
-              (context, counter, child) => Text(
-                '${counter.counter}',
-                style: const TextStyle(fontSize: 24.0),
-              ),
+        child: Text(
+          '${counter.counter}',
+          style: const TextStyle(fontSize: 24.0),
         ),
       ),
     );
